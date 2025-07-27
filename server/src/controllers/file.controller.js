@@ -532,16 +532,19 @@ const searchFiles = async (req, res) => {
 };
 
 const showUserFiles = async (req, res) => {
-    const userId = req.user.userId;
-
     try {
-        const files = await File.find({ createdBy: userId });
-
-        if (!files.length) {
-            return res.status(404).json({ message: 'No files found' });
+        // Check if user is authenticated
+        if (!req.user || !req.user.userId) {
+            return res.status(401).json({ message: 'User not authenticated' });
         }
 
-        return res.status(200).json(files);
+        const userId = req.user.userId;
+        console.log('Fetching files for user:', userId);
+
+        const files = await File.find({ createdBy: userId }).sort({ createdAt: -1 });
+
+        // Return empty array instead of 404 if no files found
+        return res.status(200).json(files || []);
 
     } catch (error) {
         console.error("List files error:", error);

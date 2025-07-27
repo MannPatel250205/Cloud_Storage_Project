@@ -100,10 +100,13 @@ export const searchFiles = createAsyncThunk("file/search", async (query, { rejec
 // SHOW USER FILES
 export const showUserFiles = createAsyncThunk("file/showUserFiles", async (_, { rejectWithValue }) => {
   try {
-    const res = await axiosInstance.get("/showUserFiles");
+    console.log('Fetching user files...');
+    const res = await axiosInstance.get("/files/showUserFiles");
+    console.log('User files response:', res.data);
     return res.data;
   } catch (err) {
-    return rejectWithValue(err.response?.data);
+    console.error('Error fetching user files:', err.response?.data || err.message);
+    return rejectWithValue(err.response?.data || { message: 'Failed to fetch files' });
   }
 });
 

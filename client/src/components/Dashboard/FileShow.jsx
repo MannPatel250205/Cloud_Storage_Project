@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 const FileShow = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  const { files } = useSelector((state) => state.file);
+  const { files, loading, error } = useSelector((state) => state.file);
   const [previewFile, setPreviewFile] = useState(null);
   const [shareFile, setShareFile] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -104,11 +104,30 @@ const paginatedFiles = filteredFiles?.slice(
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold mb-4">📁 Your Uploaded Files</h2>
         <p className="text-sm text-gray-500">
-  Showing {filteredFiles.length} file{filteredFiles.length !== 1 && "s"}
-</p>
-
-        
+          Showing {filteredFiles?.length || 0} file{(filteredFiles?.length || 0) !== 1 && "s"}
+        </p>
       </div>
+
+      {/* Error Display */}
+      {error && (
+        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+          <p className="font-semibold">Error loading files:</p>
+          <p>{error.message || error}</p>
+          <button 
+            onClick={() => dispatch(showUserFiles())}
+            className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
+      {/* Loading State */}
+      {loading && (
+        <div className="mb-4 p-4 bg-blue-100 border border-blue-400 text-blue-700 rounded-lg">
+          <p>Loading your files...</p>
+        </div>
+      )}
 
       <div className="flex flex-col lg:flex-row gap-4 w-full lg:items-center mb-4">
   <div className="relative flex-1">
