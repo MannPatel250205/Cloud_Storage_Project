@@ -153,7 +153,7 @@ const fileSlice = createSlice({
         state.error = null;
       })
       .addCase(showUserFiles.fulfilled, (state, action) => {
-        state.userFiles = action.payload;
+        state.files = action.payload;
       })
       .addCase(showUserFiles.rejected, (state, action) => {
         state.loading = false;

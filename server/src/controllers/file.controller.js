@@ -9,13 +9,13 @@ import { User } from '../models/user.models.js';
 import path from "path";
 
 
-
 const uploadFiles = async (req, res) => {
     if (!req.files || req.files.length === 0) {
         return res.status(400).json({ error: 'No files uploaded' });
     }
 
-    const { isPassword, password, hasExpiry, expiresAt, userId } = req.body;
+    const { isPassword, password, hasExpiry, expiresAt } = req.body;
+    const userId = req.user.userId;
 
     try {
         const containerClient = getContainerClient();
@@ -357,12 +357,18 @@ const downloadFile = async (req, res) => {
 
 const deleteFile = async (req, res) => {
     const { fileId } = req.params;
+    const userId = req.user.userId;
 
     try {
         const file = await File.findById(fileId);
 
         if (!file) {
             return res.status(404).json({ error: 'File not found' });
+        }
+
+        // Check if the user owns the file
+        if (file.createdBy.toString() !== userId) {
+            return res.status(403).json({ error: 'Access denied. You can only delete your own files.' });
         }
 
         if (file.status === 'deleted') {
@@ -389,6 +395,7 @@ const deleteFile = async (req, res) => {
 const updateFileStatus = async (req, res) => {
     const { fileId } = req.params;
     const { status } = req.body;
+    const userId = req.user.userId;
 
     try {
 
@@ -400,6 +407,11 @@ const updateFileStatus = async (req, res) => {
 
         if (!file) {
             return res.status(404).json({ error: 'File not found' });
+        }
+
+        // Check if the user owns the file
+        if (file.createdBy.toString() !== userId) {
+            return res.status(403).json({ error: 'Access denied. You can only update your own files.' });
         }
 
         if (file.status === status) {
@@ -499,9 +511,11 @@ const updateFilePassword = async (req, res) => {
 
 const searchFiles = async (req, res) => {
     const { query } = req.query; // Search query string
+    const userId = req.user.userId;
 
     try {
         const files = await File.find({
+            createdBy: userId,
             name: { $regex: query, $options: 'i' }, // Case-insensitive search
         });
 
@@ -518,7 +532,7 @@ const searchFiles = async (req, res) => {
 };
 
 const showUserFiles = async (req, res) => {
-    const { userId } = req.params;
+    const userId = req.user.userId;
 
     try {
         const files = await File.find({ createdBy: userId });

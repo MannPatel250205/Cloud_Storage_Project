@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getUserFiles } from "../../redux/slice/file/fileThunk";
+import { showUserFiles } from "../../redux/slice/file/fileThunk";
 import { formatDistanceToNowStrict, differenceInDays } from "date-fns";
 import { FaWhatsapp, FaTelegramPlane, FaInstagram, FaEnvelope, FaHeadset,FaDownload } from "react-icons/fa"
 import { toast } from "react-toastify";
@@ -21,8 +21,8 @@ const [filterStatus, setFilterStatus] = useState("");
   const itemsPerPage = 10;
 
   useEffect(() => {
-    if (user && user._id) {
-      dispatch(getUserFiles(user._id));
+    if (user) {
+      dispatch(showUserFiles());
     }
   }, [user, dispatch]);
 

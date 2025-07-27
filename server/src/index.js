@@ -13,7 +13,7 @@ import { File } from "./models/file.models.js";
 
 dotenv.config();
 
-const PORT = process.env.PORT || 5600;
+const PORT = process.env.PORT || 6600;
 
 
 const startServer = async () => {

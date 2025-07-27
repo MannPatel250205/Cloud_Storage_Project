@@ -63,7 +63,6 @@ const FileUploader = () => {
 
     const formData = new FormData();
     files.forEach((file) => formData.append("files", file));
-    formData.append("userId", user._id ? user._id : user.id);
     formData.append("hasExpiry", enableExpiry);
 
     if (enableExpiry && expiryDate) {

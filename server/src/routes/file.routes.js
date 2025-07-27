@@ -1,27 +1,28 @@
 import express, { Router } from "express"
 import upload from "../middlewares/upload.middlewares.js";
+import authenticate from "../middlewares/auth.middlewares.js";
 import { deleteFile, downloadInfo, downloadFile, generateQR, generateShareShortenLink, getDownloadCount, getFileDetails, getUserFiles, resolveShareLink, searchFiles, sendLinkEmail, showUserFiles, updateAllFileExpiry, updateFileExpiry, updateFilePassword, updateFileStatus, uploadFiles, verifyFilePassword, uploadFilesGuest, guestDownloadInfo, verifyGuestFilePassword, } from "../controllers/file.controller.js";
 
 
 const router = Router();
 
-router.post("/upload", upload.array('files'), uploadFiles);
+router.post("/upload", authenticate, upload.array('files'), uploadFiles);
 router.post("/upload-guest", upload.array('files'), uploadFilesGuest);
 
 router.get("/download/:fileId", downloadFile);
-router.delete("/delete/:fileId", deleteFile);
-router.put("/update/:fileId", updateFileStatus);
+router.delete("/delete/:fileId", authenticate, deleteFile);
+router.put("/update/:fileId", authenticate, updateFileStatus);
 router.get("/getFileDetails/:fileId", getFileDetails);
-router.post('/generateShareShortenLink', generateShareShortenLink);
-router.post('/sendLinkEmail', sendLinkEmail);
+router.post('/generateShareShortenLink', authenticate, generateShareShortenLink);
+router.post('/sendLinkEmail', authenticate, sendLinkEmail);
 
-router.post('/FileExpiry', updateFileExpiry);
-router.post('/updateAllFileExpiry', updateAllFileExpiry);
-router.post('/updateFilePassword', updateFilePassword);
-router.get('/searchFiles', searchFiles);
-router.get('/showUserFiles', showUserFiles);
+router.post('/FileExpiry', authenticate, updateFileExpiry);
+router.post('/updateAllFileExpiry', authenticate, updateAllFileExpiry);
+router.post('/updateFilePassword', authenticate, updateFilePassword);
+router.get('/searchFiles', authenticate, searchFiles);
+router.get('/showUserFiles', authenticate, showUserFiles);
 
-router.get('/generateQR/:fileId', generateQR);
+router.get('/generateQR/:fileId', authenticate, generateQR);
 router.get('/getDownloadCount/:fileId', getDownloadCount);
 
 router.get('/f/:shortCode', downloadInfo);
