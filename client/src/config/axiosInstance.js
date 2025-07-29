@@ -1,10 +1,10 @@
 import axios from "axios";
 import { getStoredToken, clearAuthData } from "../utils/tokenUtils.js";
 
-const BASE_URL = "http://localhost:6600/api/"
+const BASE_URL = "https://cloud-storage-project-backend.onrender.com/api/"
 const axiosInstance = axios.create({
     baseURL: BASE_URL,
-    timeout: 30000, // 30 seconds timeout
+    timeout: 30000,
 })
 
 // Add a request interceptor to automatically add the Authorization header
