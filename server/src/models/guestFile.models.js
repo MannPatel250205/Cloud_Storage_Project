@@ -53,6 +53,10 @@ const fileSchema = new Schema({
         type: String,
         default: null,
     },
+    directUrl: {
+        type: String,
+        default: null,
+    },
     // ✅ User ID
     createdBy: {
         type: String,

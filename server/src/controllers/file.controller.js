@@ -1,6 +1,6 @@
 import { File } from '../models/file.models.js';
 import { GuestFile } from '../models/guestFile.models.js';
-import { getContainerClient } from "../config/azureBlob.js";
+import { getContainerClient, generateSasUrlWithToken, generateSasUrl } from "../config/azureBlob.js";
 import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
 import shortid from "shortid";
@@ -41,10 +41,11 @@ const uploadFiles = async (req, res) => {
             });
 
             const fileUrl = blockBlobClient.url;
+            const sasUrl = await generateSasUrl(blobName, 'r', 1);
             const shortCode = shortid.generate();
 
             const fileObj = {
-                path: fileUrl,
+                path: sasUrl, // Use SAS URL for secure access
                 name: finalFileName,
                 type: file.mimetype,
                 size: file.size,
@@ -54,6 +55,7 @@ const uploadFiles = async (req, res) => {
                     : new Date(Date.now() + 10 * 24 * 3600000),
                 status: 'active',
                 shortUrl: `/f/${shortCode}`,
+                directUrl: sasUrl, // Store the SAS URL for direct access
                 createdBy: userId,
             };
 
@@ -115,12 +117,13 @@ const uploadFilesGuest = async (req, res) => {
             });
 
             const fileUrl = blockBlobClient.url;
+            const sasUrl = await generateSasUrl(blobName, 'r', 1);
             const shortCode = shortid.generate();
 
             const username = shortid.generate();
 
             const fileObj = {
-                path: fileUrl,
+                path: sasUrl, // Use SAS URL for secure access
                 name: finalFileName,
                 type: file.mimetype,
                 size: file.size,
@@ -130,6 +133,7 @@ const uploadFilesGuest = async (req, res) => {
                     : new Date(Date.now() + 10 * 24 * 3600000),
                 status: 'active',
                 shortUrl: `/g/${shortCode}`,
+                directUrl: sasUrl, // Store the SAS URL for direct access
                 createdBy: `guest_${username}`,
             };
 
@@ -152,7 +156,8 @@ const uploadFilesGuest = async (req, res) => {
                 name: f.name,
                 size: f.size,
                 type: f.type,
-                path: f.path,
+                path: f.path, // This is now a SAS URL
+                directUrl: f.directUrl || f.path, // This is now a SAS URL
                 isPasswordProtected: f.isPasswordProtected,
                 expiresAt: f.expiresAt,
                 downloadedContent: f.downloadedContent,
@@ -190,14 +195,8 @@ const downloadInfo = async (req, res) => {
         const blobName = `file-share-app/${file.name}`;
         const blockBlobClient = containerClient.getBlockBlobClient(blobName);
 
-        // Generate SAS URL for download (24 hours expiry)
-        const expiresOn = new Date();
-        expiresOn.setHours(expiresOn.getHours() + 24);
-        
-        const downloadUrl = await blockBlobClient.generateSasUrl({
-            permissions: 'r',
-            expiresOn: expiresOn,
-        });
+        // Generate SAS URL for download using the provided SAS token
+        const downloadUrl = await generateSasUrl(blobName, 'r', 1);
 
         file.downloadedContent++;
         await file.save();
@@ -216,6 +215,7 @@ const downloadInfo = async (req, res) => {
             size: file.size,
             type: file.type || 'file',
             path: file.path,
+            directUrl: file.directUrl || file.path,
             isPasswordProtected: file.isPasswordProtected || false,
             expiresAt: file.expiresAt || null,
             status: file.status || 'active',
@@ -252,14 +252,8 @@ const guestDownloadInfo = async (req, res) => {
         const blobName = `file-share-app/${file.name}`;
         const blockBlobClient = containerClient.getBlockBlobClient(blobName);
 
-        // Generate SAS URL for download (24 hours expiry)
-        const expiresOn = new Date();
-        expiresOn.setHours(expiresOn.getHours() + 24);
-        
-        const downloadUrl = await blockBlobClient.generateSasUrl({
-            permissions: 'r',
-            expiresOn: expiresOn,
-        });
+        // Generate SAS URL for download using the provided SAS token
+        const downloadUrl = await generateSasUrl(blobName, 'r', 1);
 
         file.downloadedContent++;
         await file.save();
@@ -272,6 +266,7 @@ const guestDownloadInfo = async (req, res) => {
             size: file.size,
             type: file.type || 'file',
             path: file.path,
+            directUrl: file.directUrl || file.path,
             isPasswordProtected: file.isPasswordProtected || false,
             expiresAt: file.expiresAt || null,
             status: file.status || 'active',
@@ -322,14 +317,8 @@ const downloadFile = async (req, res) => {
         const blobName = `file-share-app/${file.name}`;
         const blockBlobClient = containerClient.getBlockBlobClient(blobName);
 
-        // Generate SAS URL for download (24 hours expiry)
-        const expiresOn = new Date();
-        expiresOn.setHours(expiresOn.getHours() + 24);
-        
-        const downloadUrl = await blockBlobClient.generateSasUrl({
-            permissions: 'r',
-            expiresOn: expiresOn,
-        });
+        // Generate SAS URL for download using the provided SAS token
+        const downloadUrl = await generateSasUrl(blobName, 'r', 1);
 
         if (!downloadUrl) {
             return res.status(500).json({ error: 'Error generating download URL' });
@@ -543,8 +532,25 @@ const showUserFiles = async (req, res) => {
 
         const files = await File.find({ createdBy: userId }).sort({ createdAt: -1 });
 
+        // Ensure all files have SAS URLs
+        const filesWithSasUrls = await Promise.all(files.map(async file => {
+            const fileObj = file.toObject();
+            // If the file doesn't have a SAS URL, generate one
+            if (!fileObj.path.includes('?') || !fileObj.directUrl.includes('?')) {
+                try {
+                    const blobName = `file-share-app/${file.name}`;
+                    const sasUrl = await generateSasUrl(blobName, 'r', 1);
+                    fileObj.path = sasUrl;
+                    fileObj.directUrl = sasUrl;
+                } catch (error) {
+                    console.error(`Error generating SAS URL for file ${file.name}:`, error);
+                }
+            }
+            return fileObj;
+        }));
+
         // Return empty array instead of 404 if no files found
-        return res.status(200).json(files || []);
+        return res.status(200).json(filesWithSasUrls || []);
 
     } catch (error) {
         console.error("List files error:", error);
@@ -691,6 +697,7 @@ const resolveShareLink = async (req, res) => {
             size: file.size,
             type: file.type || "file", // fallback if missing
             previewUrl: file.path,
+            directUrl: file.directUrl || file.path,
             isPasswordProtected: file.isPasswordProtected || false,
             expiresAt: file.expiresAt || null,
             status: file.status || "active",
@@ -754,7 +761,54 @@ const getUserFiles = async (req, res) => {
     }
 }
 
+const migrateExistingFiles = async (req, res) => {
+    try {
+        // Update regular files with SAS URLs
+        const regularFiles = await File.find({});
+        let regularFilesUpdated = 0;
+        
+        for (const file of regularFiles) {
+            try {
+                const blobName = `file-share-app/${file.name}`;
+                const sasUrl = await generateSasUrl(blobName, 'r', 1);
+                
+                file.path = sasUrl;
+                file.directUrl = sasUrl;
+                await file.save();
+                regularFilesUpdated++;
+            } catch (error) {
+                console.error(`Error updating file ${file.name}:`, error);
+            }
+        }
 
+        // Update guest files with SAS URLs
+        const guestFiles = await GuestFile.find({});
+        let guestFilesUpdated = 0;
+        
+        for (const file of guestFiles) {
+            try {
+                const blobName = `file-share-app/${file.name}`;
+                const sasUrl = await generateSasUrl(blobName, 'r', 1);
+                
+                file.path = sasUrl;
+                file.directUrl = sasUrl;
+                await file.save();
+                guestFilesUpdated++;
+            } catch (error) {
+                console.error(`Error updating guest file ${file.name}:`, error);
+            }
+        }
+
+        return res.status(200).json({ 
+            message: 'Migration completed successfully',
+            regularFilesUpdated,
+            guestFilesUpdated
+        });
+    } catch (error) {
+        console.error("Migration error:", error);
+        return res.status(500).json({ error: 'Migration failed' });
+    }
+};
 
 export {
     uploadFiles,
@@ -777,5 +831,6 @@ export {
     downloadInfo,
     uploadFilesGuest,
     guestDownloadInfo,
-    verifyGuestFilePassword
+    verifyGuestFilePassword,
+    migrateExistingFiles
 };

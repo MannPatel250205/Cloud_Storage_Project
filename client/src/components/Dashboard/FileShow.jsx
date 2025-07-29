@@ -42,21 +42,21 @@ const [filterStatus, setFilterStatus] = useState("");
   //   };
   // };
 
-  function handleShare(shortUrl) {
-  const frontendBaseUrl = window.location.origin; // Automatically picks http://localhost:5173 or your deployed domain
-  const fullUrl = `${frontendBaseUrl}${shortUrl}`;
+  function handleShare(file) {
+  // Use direct Azure URL if available, otherwise fall back to short URL
+  const shareUrl = file.directUrl || `${window.location.origin}${file.shortUrl}`;
 
   return {
-    whatsapp: `https://wa.me/?text=${encodeURIComponent("Download file: " + fullUrl)}`,
-    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(fullUrl)}`,
-    twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(fullUrl)}&text=Check this out!`,
-    email: `mailto:?subject=Shared File&body=${encodeURIComponent("Here’s your file: " + fullUrl)}`,
-    copy: fullUrl,
-    qr: `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(fullUrl)}&size=150x150`
+    whatsapp: `https://wa.me/?text=${encodeURIComponent("Download file: " + shareUrl)}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
+    twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=Check this out!`,
+    email: `mailto:?subject=Shared File&body=${encodeURIComponent("Here's your file: " + shareUrl)}`,
+    copy: shareUrl,
+    qr: `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(shareUrl)}&size=150x150`
   };
 }
-const downloadQRCode = async (shortUrl) => {
-  const qrUrl = handleShare(shortUrl).qr;
+const downloadQRCode = async (file) => {
+  const qrUrl = handleShare(file).qr;
 
   try {
     const response = await fetch(qrUrl);
@@ -275,7 +275,7 @@ const paginatedFiles = filteredFiles?.slice(
               </tbody> */}
               <tbody className="bg-[var(--bg-color)] divide-y divide-[var(--border-color)]">
   {paginatedFiles?.map((file) => {
-    const shareLinks = handleShare(file.shortUrl);
+    const shareLinks = handleShare(file);
     const formattedSize =
       file.size > 1024 * 1024
         ? `${(file.size / (1024 * 1024)).toFixed(2)} MB`
@@ -468,7 +468,7 @@ const paginatedFiles = filteredFiles?.slice(
 
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-[var(--text-color)]">
       <a
-        href={handleShare(shareFile.shortUrl).whatsapp}
+        href={handleShare(shareFile).whatsapp}
         target="_blank"
         rel="noreferrer"
         className="flex items-center gap-3 p-4 border rounded hover:shadow transition"
@@ -478,7 +478,7 @@ const paginatedFiles = filteredFiles?.slice(
       </a>
 
       <a
-        href={handleShare(shareFile.shortUrl).instagram || "#"}
+        href={handleShare(shareFile).instagram || "#"}
         target="_blank"
         rel="noreferrer"
         className="flex items-center gap-3 p-4 border rounded hover:shadow transition"
@@ -488,7 +488,7 @@ const paginatedFiles = filteredFiles?.slice(
       </a>
 
       <a
-        href={handleShare(shareFile.shortUrl).telegram}
+        href={handleShare(shareFile).telegram}
         target="_blank"
         rel="noreferrer"
         className="flex items-center gap-3 p-4 border rounded hover:shadow transition"
@@ -498,7 +498,7 @@ const paginatedFiles = filteredFiles?.slice(
       </a>
 
       <a
-        href={handleShare(shareFile.shortUrl).email}
+        href={handleShare(shareFile).email}
         className="flex items-center gap-3 p-4 border rounded hover:shadow transition"
       >
         <FaEnvelope className="text-red-500 text-2xl" />
@@ -514,13 +514,13 @@ const paginatedFiles = filteredFiles?.slice(
         QR Code:
       </p>
       <img
-        src={handleShare(shareFile.shortUrl).qr}
+        src={handleShare(shareFile).qr}
         alt="QR Code"
         className="mx-auto border rounded w-32 h-32"
       />
       <div className="flex flex-col items-center mt-4">
       <button
-  onClick={() => downloadQRCode(shareFile.shortUrl)}
+  onClick={() => downloadQRCode(shareFile)}
   className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-500 rounded hover:bg-blue-200 transition"
 >
   <FaDownload className="text-blue-500 text-2xl" />
@@ -529,7 +529,7 @@ const paginatedFiles = filteredFiles?.slice(
 
         <button
           onClick={() => {
-            navigator.clipboard.writeText(handleShare(shareFile.shortUrl).copy);
+            navigator.clipboard.writeText(handleShare(shareFile).copy);
            toast.success("Link copied to clipboard!");
           }}
           className="mt-2 inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-500 rounded hover:bg-blue-200 transition"
