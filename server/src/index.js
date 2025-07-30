@@ -22,9 +22,19 @@ const startServer = async () => {
 
         // Register routes
         app.use("/api/files", fileRoutes);
-        app.use("/api/users", userRoutes); // 👈 Now you can use /api/users endpoints
+        app.use("/api/users", userRoutes);
 
-        app.use(express.static(path.join(__dirname, '/client')));
+        // Serve static files from the React app in production
+        if (process.env.NODE_ENV === 'production') {
+            app.use(express.static(path.join(__dirname, '../client/dist')));
+
+            // Handle React routing, return all requests to React app
+            app.get('*', (req, res) => {
+                res.sendFile(path.join(__dirname, '../client/dist', 'index.html'));
+            });
+        } else {
+            app.use(express.static(path.join(__dirname, '/client')));
+        }
 
         app.get('/f/:shortCode', async (req, res) => {
 

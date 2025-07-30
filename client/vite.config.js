@@ -9,4 +9,8 @@ export default defineConfig({
             '/api/files': 'http://localhost:6600',
         },
     },
+    build: {
+        outDir: 'dist',
+        sourcemap: false,
+    },
 })
