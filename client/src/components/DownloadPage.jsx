@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import axiosInstance from "../config/axiosInstance";
 
 const DownloadPage = () => {
     const { shortCode } = useParams();
@@ -33,13 +34,11 @@ const DownloadPage = () => {
 
         const fetchFile = async () => {
             try {
-                const res = await fetch(`https://cloud-storage-project-backend.onrender.com/api/files/f/${shortCode}`, {
+                const res = await axiosInstance.get(`/files/f/${shortCode}`, {
                     signal: controller.signal,
                 });
 
-                if (!res.ok) throw new Error("File not found");
-
-                const data = await res.json();
+                const data = res.data;
                 setFile(data);
                 setIsProtected(data.isPasswordProtected);
                 setIsLoading(false);
@@ -49,7 +48,7 @@ const DownloadPage = () => {
                 }
             } catch (err) {
                 if (err.name !== "AbortError") {
-                    setError(err.message);
+                    setError(err.response?.data?.message || err.message);
                 }
             }
         };
@@ -80,13 +79,12 @@ const DownloadPage = () => {
         }
 
         try {
-            const res = await fetch(`https://cloud-storage-project-backend.onrender.com/api/files/verifyFilePassword`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ shortCode, password }),
+            const res = await axiosInstance.post(`/files/verifyFilePassword`, {
+                shortCode, 
+                password 
             });
 
-            const result = await res.json();
+            const result = res.data;
             console.log(result);
             if (result.success) {
                 toast.success("✅ Password verified! You can now download the file.");
@@ -95,7 +93,7 @@ const DownloadPage = () => {
                 toast.error("❌ Incorrect password. Try again.");
             }
         } catch (err) {
-            toast.error("Something went wrong. Please try again.");
+            toast.error(err.response?.data?.message || "Something went wrong. Please try again.");
         }
     };
 

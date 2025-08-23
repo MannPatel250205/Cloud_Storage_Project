@@ -1,7 +1,8 @@
 import axios from "axios";
 import { getStoredToken, clearAuthData } from "../utils/tokenUtils.js";
+import { API_BASE_URL } from "./config.js";
 
-const BASE_URL = "https://cloud-storage-project-backend.onrender.com/api/"
+const BASE_URL = API_BASE_URL;
 const axiosInstance = axios.create({
     baseURL: BASE_URL,
     timeout: 30000,

@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import axiosInstance from "../../../config/axiosInstance";
 
 const GuestDownload = () => {
   const { shortCode } = useParams();
@@ -16,13 +17,11 @@ const GuestDownload = () => {
 
   const fetchFile = async () => {
     try {
-      const res = await fetch(`https://cloud-storage-project-backend.onrender.com/api/files/g/${shortCode}`, {
+      const res = await axiosInstance.get(`/files/g/${shortCode}`, {
         signal: controller.signal,
       });
 
-      if (!res.ok) throw new Error("File not found");
-
-      const data = await res.json();
+      const data = res.data;
       setFile(data);
       setIsProtected(data.isPasswordProtected);
       setIsLoading(false);
@@ -33,7 +32,7 @@ const GuestDownload = () => {
 
     } catch (err) {
       if (err.name !== "AbortError") {
-        setError(err.message);
+        setError(err.response?.data?.message || err.message);
       }
     }
   };
