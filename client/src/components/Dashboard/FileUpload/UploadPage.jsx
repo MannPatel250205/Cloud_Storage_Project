@@ -1,11 +1,11 @@
 import React, { useRef, useState, useEffect } from "react";
 import "./FileUploader.css";
 import { useDispatch, useSelector } from "react-redux";
-import { uploadFile } from "../../../redux/slice/file/fileThunk";
+import { uploadFile, showUserFiles } from "../../../redux/slice/file/fileThunk";
 import { resetLoading } from "../../../redux/slice/file/fileSlice";
 import { toast } from "react-toastify";
 
-const FileUploader = () => {
+const FileUploader = ({ setActiveTab }) => {
     const fileInputRef = useRef(null);
     const dispatch = useDispatch();
     const { loading } = useSelector((state) => state.file);
@@ -112,6 +112,22 @@ const FileUploader = () => {
             setPassword("");
             setEnableExpiry(false);
             setExpiryDate("");
+            
+            // Navigate back to dashboard after successful upload
+            if (setActiveTab) {
+                try {
+                    // Refresh the file list to show the newly uploaded files
+                    dispatch(showUserFiles());
+                    
+                    setTimeout(() => {
+                        setActiveTab("home");
+                    }, 1500); // Small delay to show success message
+                } catch (error) {
+                    console.error("Error navigating back to dashboard:", error);
+                    // Fallback: navigate immediately
+                    setActiveTab("home");
+                }
+            }
         } catch (err) {
             clearTimeout(timeoutId);
             console.error("Upload error:", err);
@@ -298,6 +314,24 @@ const FileUploader = () => {
                 >
                     {loading ? "Uploading..." : "Upload"}
                 </button>
+                {setActiveTab && (
+                    <button
+                        className="back-btn"
+                        onClick={() => setActiveTab("home")}
+                        style={{
+                            marginLeft: "10px",
+                            padding: "10px 20px",
+                            backgroundColor: "#6b7280",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "5px",
+                            cursor: "pointer",
+                            fontSize: "14px"
+                        }}
+                    >
+                        Back to Dashboard
+                    </button>
+                )}
             </div>
         </div>
     );

@@ -36,7 +36,7 @@ const Dashboard = () => {
       <div className="flex flex-col flex-1">
         <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
         <main className="flex-1 p-6 mt-20">
-          {activeTab === "upload" && <UploadPage />}
+          {activeTab === "upload" && <UploadPage setActiveTab={setActiveTab} />}
           {activeTab === "profile" && <UserProfile />}
           {activeTab === "settings" && <UserProfile />}
           {activeTab === "logout" && <Logout />}
