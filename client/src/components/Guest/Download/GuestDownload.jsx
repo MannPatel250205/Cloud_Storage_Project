@@ -16,7 +16,7 @@ const GuestDownload = () => {
 
   const fetchFile = async () => {
     try {
-      const res = await fetch(`http://localhost:6600/api/files/g/${shortCode}`, {
+      const res = await fetch(`https://cloud-storage-project-backend.onrender.com/api/files/g/${shortCode}`, {
         signal: controller.signal,
       });
 
@@ -64,7 +64,7 @@ const GuestDownload = () => {
     }
 
     try {
-      const res = await fetch(`http://localhost:6600/api/files/verifyGuestFilePassword`, {
+      const res = await fetch(`https://cloud-storage-project-backend.onrender.com/api/files/verifyGuestFilePassword`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ shortCode, password }),

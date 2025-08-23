@@ -1,7 +1,7 @@
 import axios from "axios";
 import { getStoredToken, clearAuthData } from "../utils/tokenUtils.js";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "https://cloud-storage-project-backend.onrender.com/api/"
+const BASE_URL = "https://cloud-storage-project-backend.onrender.com/api/"
 const axiosInstance = axios.create({
     baseURL: BASE_URL,
     timeout: 30000,
