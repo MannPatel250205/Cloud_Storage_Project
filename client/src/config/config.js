@@ -6,7 +6,9 @@ const config = {
     },
     production: {
         API_BASE_URL: 'https://cloud-storage-project-backend.onrender.com/api/',
-        CLIENT_URL: 'https://cloud-storage-project-frontend.onrender.com/'
+        // CLIENT_URL: 'https://cloud-storage-project-frontend.onrender.com/'
+        CLIENT_URL: 'https://red-glacier-0eaf9250f.1.azurestaticapps.net',
+        // API_BASE_URL:'https://cloud-project-backend-c4d6cmancdcucbcg.eastus2-01.azurewebsites.net'
     }
 };
 

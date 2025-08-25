@@ -12,6 +12,7 @@ const app = express();
 const allowedOrigins = [
     process.env.CLIENT_URL,
     'https://cloud-storage-project-frontend.onrender.com',
+    'https://red-glacier-0eaf9250f.1.azurestaticapps.net',
     'http://localhost:5173',
     'http://localhost:3000'
 ].filter(Boolean);
