@@ -5,8 +5,7 @@
     "main": "index.js",
     "type": "module",
     "scripts": {
-        "start": "node src/index.js",
-        "start:prod": "node src/index.js"
+        "start": "npm start"
     },
     "author": "",
     "license": "ISC",
