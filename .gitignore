@@ -88,5 +88,5 @@ jspm_packages/
 .Trashes
 ehthumbs.db
 Thumbs.db
-
-README.md
+test-backend.ps1
+webapp_logs.zip
