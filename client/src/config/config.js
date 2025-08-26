@@ -1,14 +1,14 @@
 // Environment configuration
 const config = {
     development: {
-        API_BASE_URL: 'http://localhost:6600/api/',
+        API_BASE_URL: 'https://cloud-project-backend-c4d6cmancdcucbcg.eastus2-01.azurewebsites.net/api/',
         CLIENT_URL: 'http://localhost:5173'
     },
     production: {
-        API_BASE_URL: 'https://cloud-storage-project-backend.onrender.com/api/',
-        // CLIENT_URL: 'https://cloud-storage-project-frontend.onrender.com/'
-        CLIENT_URL: 'https://red-glacier-0eaf9250f.1.azurestaticapps.net',
-        // API_BASE_URL:'https://cloud-project-backend-c4d6cmancdcucbcg.eastus2-01.azurewebsites.net/api/'
+        // API_BASE_URL: 'https://cloud-storage-project-backend.onrender.com/api/',
+        CLIENT_URL: 'https://cloud-storage-project-frontend.onrender.com/',
+        // CLIENT_URL: 'https://red-glacier-0eaf9250f.1.azurestaticapps.net',
+        API_BASE_URL:'https://cloud-project-backend-c4d6cmancdcucbcg.eastus2-01.azurewebsites.net/api/'
     }
 };
 
