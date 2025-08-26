@@ -57,5 +57,5 @@ jobs:
         with:
           app-name: 'cloud-project-backend'
           slot-name: 'Production'
-          package: .
+          package: ./server
           
