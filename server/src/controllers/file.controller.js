@@ -49,10 +49,8 @@ const uploadFiles = async (req, res) => {
                 name: finalFileName,
                 type: file.mimetype,
                 size: file.size,
-                hasExpiry: hasExpiry === 'true',
-                expiresAt: hasExpiry === 'true'
-                    ? new Date(Date.now() + expiresAt * 3600000)
-                    : new Date(Date.now() + 10 * 24 * 3600000),
+                hasExpiry: false,
+                expiresAt: null,
                 status: 'active',
                 shortUrl: `/f/${shortCode}`,
                 directUrl: sasUrl, // Store the SAS URL for direct access
@@ -127,10 +125,8 @@ const uploadFilesGuest = async (req, res) => {
                 name: finalFileName,
                 type: file.mimetype,
                 size: file.size,
-                hasExpiry: hasExpiry === 'true',
-                expiresAt: hasExpiry === 'true'
-                    ? new Date(Date.now() + expiresAt * 3600000)
-                    : new Date(Date.now() + 10 * 24 * 3600000),
+                hasExpiry: false,
+                expiresAt: null,
                 status: 'active',
                 shortUrl: `/g/${shortCode}`,
                 directUrl: sasUrl, // Store the SAS URL for direct access
@@ -187,9 +183,6 @@ const downloadInfo = async (req, res) => {
             return res.status(403).json({ error: 'This file is not available for download' });
         }
 
-        if (file.expiresAt && new Date(file.expiresAt) < new Date()) {
-            return res.status(410).json({ error: 'This file has expired' });
-        }
 
         const containerClient = getContainerClient();
         const blobName = `file-share-app/${file.name}`;
@@ -244,9 +237,6 @@ const guestDownloadInfo = async (req, res) => {
         if (file.status !== 'active') {
             return res.status(403).json({ error: 'This file is not available for download' });
         }
-        if (file.expiresAt && new Date(file.expiresAt) < new Date()) {
-            return res.status(410).json({ error: 'This file has expired' });
-        }
         
         const containerClient = getContainerClient();
         const blobName = `file-share-app/${file.name}`;
@@ -298,9 +288,6 @@ const downloadFile = async (req, res) => {
             return res.status(403).json({ error: 'This file is not available for download' });
         }
 
-        if (file.expiresAt && new Date(file.expiresAt) < new Date()) {
-            return res.status(410).json({ error: 'This file has expired' });
-        }
 
         if (file.isPasswordProtected) {
             if (!password) {
@@ -417,57 +404,7 @@ const updateFileStatus = async (req, res) => {
     }
 }
 
-const updateFileExpiry = async (req, res) => {
-    const { fileId } = req.params;
-    const { expiresAt } = req.body;
 
-    try {
-        const file = await File.findById(fileId);
-        if (!file) {
-            return res.status(404).json({ error: 'File not found' });
-        }
-
-        if (expiresAt) {
-            file.expiresAt = new Date(Date.now() + expiresAt * 3600000); // Convert hours to milliseconds
-        }
-
-        await file.save();
-
-        return res.status(200).json({ message: 'File expiry updated successfully' });
-    } catch (error) {
-        console.error("Update error:", error);
-        return res.status(500).json({ error: 'Internal Server Error' });
-    }
-}
-
-const updateAllFileExpiry = async (req, res) => {
-    const files = await File.find();
-
-    try {
-        if (!files || files.length === 0) {
-            return res.status(404).json({ error: 'No files found' });
-        }
-
-        const updatedFiles = [];
-        for (const file of files) {
-            if (file.status === 'deleted') continue; // Skip deleted files
-            if (file?.expiresAt && new Date(file.expiresAt) < new Date()) {
-                file.status = 'expired';
-                file.hasExpiry = true; // Keep this if expired files should still have expiry set
-            } else {
-                file.expiresAt = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000); // 10 days from now
-                file.hasExpiry = true;
-            }
-            await file.save();
-            updatedFiles.push(file);
-        }
-
-        return res.status(200).json({ message: 'All file expiries updated successfully', files: updatedFiles });
-    } catch (error) {
-        console.error("Update all expiry error:", error);
-        return res.status(500).json({ error: 'Internal Server Error' });
-    }
-}
 
 
 
@@ -684,12 +621,6 @@ const resolveShareLink = async (req, res) => {
             return res.status(404).json({ error: "Invalid or expired link" });
         }
 
-        // Check expiry
-        if (file.expiresAt && new Date() > file.expiresAt) {
-            file.status = "expired";
-            await file.save();
-            return res.status(410).json({ error: "This file has expired." });
-        }
 
         return res.status(200).json({
             fileId: file._id,
@@ -815,7 +746,6 @@ export {
     downloadFile,
     deleteFile,
     updateFileStatus,
-    updateFileExpiry,
     updateFilePassword,
     searchFiles,
     showUserFiles,
@@ -827,7 +757,6 @@ export {
     resolveShareLink,
     verifyFilePassword,
     getUserFiles,
-    updateAllFileExpiry,
     downloadInfo,
     uploadFilesGuest,
     guestDownloadInfo,

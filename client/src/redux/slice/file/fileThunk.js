@@ -33,7 +33,7 @@ export const getFileDetails = createAsyncThunk("file/getDetails", async (fileId,
 // DELETE FILE
 export const deleteFile = createAsyncThunk("file/delete", async (fileId, { rejectWithValue }) => {
     try {
-        await axiosInstance.delete(`/delete/${fileId}`);
+        await axiosInstance.delete(`/files/delete/${fileId}`);
         return fileId;
     } catch (err) {
         return rejectWithValue(err.response?.data);
@@ -70,15 +70,6 @@ export const sendLinkEmail = createAsyncThunk("file/sendLinkEmail", async ({ fil
     }
 });
 
-// UPDATE EXPIRY
-export const updateFileExpiry = createAsyncThunk("file/updateExpiry", async ({ fileId, expiresAt }, { rejectWithValue }) => {
-    try {
-        const res = await axiosInstance.post("/updateFileExpiry", { fileId, expiresAt });
-        return res.data;
-    } catch (err) {
-        return rejectWithValue(err.response?.data);
-    }
-});
 
 // UPDATE PASSWORD
 export const updateFilePassword = createAsyncThunk("file/updatePassword", async ({ fileId, password }, { rejectWithValue }) => {

@@ -14,8 +14,6 @@ const FileUploader = ({ setActiveTab }) => {
     const [files, setFiles] = useState([]);
     const [enablePassword, setEnablePassword] = useState(false);
     const [password, setPassword] = useState("");
-    const [enableExpiry, setEnableExpiry] = useState(false);
-    const [expiryDate, setExpiryDate] = useState("");
 
     // Reset loading state on component unmount
     useEffect(() => {
@@ -77,15 +75,7 @@ const FileUploader = ({ setActiveTab }) => {
             formData.append("files", file);
             console.log("Added file to FormData:", file.name);
         });
-        formData.append("hasExpiry", enableExpiry);
-
-        if (enableExpiry && expiryDate) {
-            const hours = Math.ceil(
-                (new Date(expiryDate) - new Date()) / (1000 * 60 * 60)
-            );
-            formData.append("expiresAt", hours);
-            console.log("Expiry set to:", hours, "hours");
-        }
+        formData.append("hasExpiry", false);
 
         formData.append("isPassword", enablePassword);
         if (enablePassword && password) {
@@ -110,8 +100,6 @@ const FileUploader = ({ setActiveTab }) => {
             // Reset form fields
             setEnablePassword(false);
             setPassword("");
-            setEnableExpiry(false);
-            setExpiryDate("");
             
             // Navigate back to dashboard after successful upload
             if (setActiveTab) {
@@ -196,27 +184,6 @@ const FileUploader = ({ setActiveTab }) => {
                     )}
                 </div>
 
-                <div className="switch-container">
-                    <label className="switch-label">
-                        <span className="label-text">Set Expiry Date</span>
-                        <label className="switch">
-                            <input
-                                type="checkbox"
-                                checked={enableExpiry}
-                                onChange={(e) => setEnableExpiry(e.target.checked)}
-                            />
-                            <span className="slider"></span>
-                        </label>
-                    </label>
-                    {enableExpiry && (
-                        <input
-                            type="datetime-local"
-                            className="expiry-input"
-                            value={expiryDate}
-                            onChange={(e) => setExpiryDate(e.target.value)}
-                        />
-                    )}
-                </div>
             </div>
 
             {files.length > 0 && (
