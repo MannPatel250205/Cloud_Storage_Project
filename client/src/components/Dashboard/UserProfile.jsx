@@ -8,16 +8,20 @@ const UserProfile = () => {
 
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [newUsername, setNewUsername] = useState(user.username);
+  const [newUsername, setNewUsername] = useState(user?.username || "");
 
   const handleUpdate = () => {
-    dispatch(updateUser({ userId: user._id, username: newUsername }));
-    setEditModalOpen(false);
+    if (user?._id) {
+      dispatch(updateUser({ userId: user._id, username: newUsername }));
+      setEditModalOpen(false);
+    }
   };
 
   const handleDelete = () => {
-    dispatch(deleteUser(user._id));
-    setDeleteModalOpen(false);
+    if (user?._id) {
+      dispatch(deleteUser(user._id));
+      setDeleteModalOpen(false);
+    }
   };
 
   return (
@@ -26,16 +30,16 @@ const UserProfile = () => {
 
       <div className="flex items-center gap-6">
         <img
-          src={user.profilePic}
+          src={user?.profilePic || "/default-avatar.png"}
           alt="Profile"
           className="w-28 h-28 rounded-full border-4 border-blue-500 shadow"
         />
         <div className="flex-1 space-y-1">
-          <h3 className="text-xl font-semibold text-gray-900">{user.fullname}</h3>
-          <p className="text-gray-600">@{user.username}</p>
-          <p className="text-gray-700">{user.email}</p>
+          <h3 className="text-xl font-semibold text-gray-900">{user?.fullname || "Unknown User"}</h3>
+          <p className="text-gray-600">@{user?.username || "unknown"}</p>
+          <p className="text-gray-700">{user?.email || "No email"}</p>
           <p className="text-sm text-gray-500">
-            User ID: <span className="text-xs text-gray-700">{user._id}</span>
+            User ID: <span className="text-xs text-gray-700">{user?._id || "Unknown"}</span>
           </p>
         </div>
       </div>

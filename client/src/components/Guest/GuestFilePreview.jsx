@@ -8,12 +8,6 @@ import {
     FaEnvelope,
     FaHeadset,
     FaDownload,
-    FaWhatsapp,
-    FaTelegramPlane,
-    FaInstagram,
-    FaEnvelope,
-    FaHeadset,
-    FaDownload,
 } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";

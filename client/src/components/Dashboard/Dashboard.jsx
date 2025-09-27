@@ -40,14 +40,13 @@ const Dashboard = () => {
                         {activeTab === "profile" && <UserProfile />}
                         {activeTab === "settings" && <UserProfile />}
                         {activeTab === "logout" && <Logout />}
-                        {activeTab === "home" &&
-
+                        {activeTab === "home" && (
                             <>
-                                <h2 className="text-2xl font-bold text mb-4">Dashboard Overview</h2>
+                                <h2 className="text-2xl font-bold text-gray-800 mb-4">Dashboard Overview</h2>
                                 <StatsGrid />
                                 <FileShow />
                             </>
-                        }
+                        )}
 
                     </main>
 

@@ -14,28 +14,11 @@ const FileShow = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [filterType, setFilterType] = useState("");
     const [filterStatus, setFilterStatus] = useState("");
-    const dispatch = useDispatch();
-    const { user } = useSelector((state) => state.auth);
-    const { files, loading, error } = useSelector((state) => state.file);
-    const [previewFile, setPreviewFile] = useState(null);
-    const [shareFile, setShareFile] = useState(null);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [filterType, setFilterType] = useState("");
-    const [filterStatus, setFilterStatus] = useState("");
-
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
-    // Pagination state
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
 
-    useEffect(() => {
-        if (user) {
-            dispatch(showUserFiles());
-        }
-    }, [user, dispatch]);
     useEffect(() => {
         if (user) {
             dispatch(showUserFiles());
@@ -71,21 +54,7 @@ const FileShow = () => {
     function handleShare(file) {
         // Use direct Azure URL if available, otherwise fall back to short URL
         const shareUrl = file.directUrl || `${window.location.origin}${file.shortUrl}`;
-    function handleShare(file) {
-        // Use direct Azure URL if available, otherwise fall back to short URL
-        const shareUrl = file.directUrl || `${window.location.origin}${file.shortUrl}`;
 
-        return {
-            whatsapp: `https://wa.me/?text=${encodeURIComponent("Download file: " + shareUrl)}`,
-            facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
-            twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=Check this out!`,
-            email: `mailto:?subject=Shared File&body=${encodeURIComponent("Here's your file: " + shareUrl)}`,
-            copy: shareUrl,
-            qr: `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(shareUrl)}&size=150x150`
-        };
-    }
-    const downloadQRCode = async (file) => {
-        const qrUrl = handleShare(file).qr;
         return {
             whatsapp: `https://wa.me/?text=${encodeURIComponent("Download file: " + shareUrl)}`,
             facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
@@ -102,10 +71,6 @@ const FileShow = () => {
             const response = await fetch(qrUrl);
             const blob = await response.blob();
             const blobUrl = URL.createObjectURL(blob);
-        try {
-            const response = await fetch(qrUrl);
-            const blob = await response.blob();
-            const blobUrl = URL.createObjectURL(blob);
 
             const link = document.createElement("a");
             link.href = blobUrl;
@@ -113,20 +78,7 @@ const FileShow = () => {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            const link = document.createElement("a");
-            link.href = blobUrl;
-            link.download = "qr-code.png";
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
 
-            // Clean up the blob URL
-            URL.revokeObjectURL(blobUrl);
-        } catch (error) {
-            console.error("QR code download failed:", error);
-            alert("Failed to download QR code. Please try again.");
-        }
-    };
             // Clean up the blob URL
             URL.revokeObjectURL(blobUrl);
         } catch (error) {
@@ -148,15 +100,7 @@ const FileShow = () => {
 
         return nameMatch && typeMatch && statusMatch;
     });
-        return nameMatch && typeMatch && statusMatch;
-    });
 
-    // Pagination logic
-    const totalPages = Math.ceil((filteredFiles?.length || 0) / itemsPerPage);
-    const paginatedFiles = filteredFiles?.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-    );
     // Pagination logic
     const totalPages = Math.ceil((filteredFiles?.length || 0) / itemsPerPage);
     const paginatedFiles = filteredFiles?.slice(
@@ -172,28 +116,8 @@ const FileShow = () => {
                     Showing {filteredFiles?.length || 0} file{(filteredFiles?.length || 0) !== 1 && "s"}
                 </p>
             </div>
-    return (
-        <div className="flex flex-col mt-6">
-            <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold mb-4">📁 Your Uploaded Files</h2>
-                <p className="text-sm text-gray-500">
-                    Showing {filteredFiles?.length || 0} file{(filteredFiles?.length || 0) !== 1 && "s"}
-                </p>
-            </div>
 
-            {/* Error Display */}
-            {error && (
-                <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-                    <p className="font-semibold">Error loading files:</p>
-                    <p>{error.message || error}</p>
-                    <button
-                        onClick={() => dispatch(showUserFiles())}
-                        className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-                    >
-                        Retry
-                    </button>
-                </div>
-            )}
+            
             {/* Error Display */}
             {error && (
                 <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
@@ -214,25 +138,7 @@ const FileShow = () => {
                     <p>Loading your files...</p>
                 </div>
             )}
-            {/* Loading State */}
-            {loading && (
-                <div className="mb-4 p-4 bg-blue-100 border border-blue-400 text-blue-700 rounded-lg">
-                    <p>Loading your files...</p>
-                </div>
-            )}
 
-            <div className="flex flex-col lg:flex-row gap-4 w-full lg:items-center mb-4">
-                <div className="relative flex-1">
-                    <span className="absolute left-3 top-2.5 text-gray-400">🔍</span>
-                    <input
-                        type="text"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10 pr-4 py-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary-text)]"
-                        placeholder="Search by file name"
-                        aria-label="Search"
-                    />
-                </div>
             <div className="flex flex-col lg:flex-row gap-4 w-full lg:items-center mb-4">
                 <div className="relative flex-1">
                     <span className="absolute left-3 top-2.5 text-gray-400">🔍</span>
@@ -256,16 +162,6 @@ const FileShow = () => {
                         <option key={type} value={type}>{type}</option>
                     ))}
                 </select>
-                <select
-                    className="px-3 py-2 border rounded-lg"
-                    value={filterType}
-                    onChange={(e) => setFilterType(e.target.value)}
-                >
-                    <option value="">All Types</option>
-                    {[...new Set(files?.map((f) => f.type))].map((type) => (
-                        <option key={type} value={type}>{type}</option>
-                    ))}
-                </select>
 
                 <select
                     className="px-3 py-2 border rounded-lg"
@@ -276,29 +172,7 @@ const FileShow = () => {
                     <option value="active">Active</option>
                     <option value="expired">Expired</option>
                 </select>
-                <select
-                    className="px-3 py-2 border rounded-lg"
-                    value={filterStatus}
-                    onChange={(e) => setFilterStatus(e.target.value)}
-                >
-                    <option value="">All Status</option>
-                    <option value="active">Active</option>
-                    <option value="expired">Expired</option>
-                </select>
 
-                {(filterType || filterStatus || searchTerm) && (
-                    <button
-                        onClick={() => {
-                            setSearchTerm("");
-                            setFilterType("");
-                            setFilterStatus("");
-                        }}
-                        className="px-3 py-2 bg-red-100 text-red-500 rounded hover:bg-red-200"
-                    >
-                        Reset
-                    </button>
-                )}
-            </div>
                 {(filterType || filterStatus || searchTerm) && (
                     <button
                         onClick={() => {
@@ -410,15 +284,7 @@ const FileShow = () => {
                   );
                 })}
               </tbody> */}
-                                <tbody className="bg-[var(--bg-color)] divide-y divide-[var(--border-color)]">
-                                    {paginatedFiles?.map((file) => {
-                                        const shareLinks = handleShare(file);
-                                        const formattedSize =
-                                            file.size > 1024 * 1024
-                                                ? `${(file.size / (1024 * 1024)).toFixed(2)} MB`
-                                                : file.size > 1024
-                                                    ? `${(file.size / 1024).toFixed(2)} KB`
-                                                    : `${file.size} Bytes`;
+            
                                 <tbody className="bg-[var(--bg-color)] divide-y divide-[var(--border-color)]">
                                     {paginatedFiles?.map((file) => {
                                         const shareLinks = handleShare(file);
@@ -538,34 +404,7 @@ const FileShow = () => {
 
                             </table>
                         </div>
-                            </table>
-                        </div>
 
-                        {/* Pagination Controls */}
-                        {totalPages > 1 && (
-                            <div className="flex justify-between items-center mt-4 px-2">
-                                <button
-                                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                                    disabled={currentPage === 1}
-                                    className="px-4 py-2 rounded text-white bg-[var(--primary-text)] hover:opacity-90 disabled:opacity-50"
-                                >
-                                    Previous
-                                </button>
-                                <span className="text-sm text-gray-950 dark:text-gray-900">
-                                    Page {currentPage} of {totalPages}
-                                </span>
-                                <button
-                                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                                    disabled={currentPage === totalPages}
-                                    className="px-4 py-2 rounded text-white bg-[var(--primary-text)] hover:opacity-90 disabled:opacity-50"
-                                >
-                                    Next
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            )}
                         {/* Pagination Controls */}
                         {totalPages > 1 && (
                             <div className="flex justify-between items-center mt-4 px-2">
@@ -627,57 +466,11 @@ const FileShow = () => {
                     </div>
                 </div>
             )}
-            {/* Preview Modal */}
-            {previewFile && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white dark:bg-gray-800 p-6 rounded shadow-lg max-w-2xl w-full">
-                        <h3 className="text-lg font-bold mb-2">{previewFile.name}</h3>
-                        {/* File Preview */}
-                        {previewFile.type.startsWith("image/") && (
-                            <img src={previewFile.path} alt={previewFile.name} className="w-full h-auto rounded mb-4" />
-                        )}
-                        {previewFile.type.startsWith("video/") && (
-                            <video controls className="w-full h-auto rounded mb-4">
-                                <source src={previewFile.path} type={previewFile.type} />
-                                Your browser does not support the video tag.
-                            </video>
-                        )}
-                        {previewFile.type.startsWith("audio/") && (
-                            <audio controls className="w-full h-auto rounded mb-4">
-                                <source src={previewFile.path} type={previewFile.type} />
-                                Your browser does not support the audio element.
-                            </audio>
-                        )}
-                        {previewFile.type === "application/pdf" && (
-                            <iframe src={previewFile.path} title="PDF Preview" className="w-full h-[400px] rounded mb-4"></iframe>
-                        )}
-                        <div className="mt-4 text-right">
-                            <button
-                                onClick={() => setPreviewFile(null)}
-                                className="px-4 py-2 text-white bg-red-600 rounded hover:bg-red-700"
-                            >
-                                Close
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* Share Modal */}
             {shareFile && (
-
-
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white dark:bg-[--bg-color] p-6 rounded shadow-lg w-full max-w-md md:max-w-2xl">
-                        <h3 className="text-lg font-bold mb-4 text-center">
-                            Share "{shareFile?.name}"
-                        </h3>
-            {/* Share Modal */}
-            {shareFile && (
-
-
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white dark:bg-[--bg-color] p-6 rounded shadow-lg w-full max-w-md md:max-w-2xl">
+                    <div className="bg-white dark:bg-gray-800 p-6 rounded shadow-lg w-full max-w-md md:max-w-2xl">
                         <h3 className="text-lg font-bold mb-4 text-center">
                             Share "{shareFile?.name}"
                         </h3>
@@ -692,53 +485,25 @@ const FileShow = () => {
                                 <FaWhatsapp className="text-green-500 text-2xl" />
                                 <span className="font-semibold">WhatsApp</span>
                             </a>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-[var(--text-color)]">
-                            <a
-                                href={handleShare(shareFile).whatsapp}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="flex items-center gap-3 p-4 border rounded hover:shadow transition"
-                            >
-                                <FaWhatsapp className="text-green-500 text-2xl" />
-                                <span className="font-semibold">WhatsApp</span>
-                            </a>
 
                             <a
-                                href={handleShare(shareFile).instagram || "#"}
+                                href={handleShare(shareFile).facebook}
                                 target="_blank"
                                 rel="noreferrer"
                                 className="flex items-center gap-3 p-4 border rounded hover:shadow transition"
                             >
                                 <FaInstagram className="text-pink-500 text-2xl" />
-                                <span className="font-semibold">Instagram</span>
-                            </a>
-                            <a
-                                href={handleShare(shareFile).instagram || "#"}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="flex items-center gap-3 p-4 border rounded hover:shadow transition"
-                            >
-                                <FaInstagram className="text-pink-500 text-2xl" />
-                                <span className="font-semibold">Instagram</span>
+                                <span className="font-semibold">Facebook</span>
                             </a>
 
                             <a
-                                href={handleShare(shareFile).telegram}
+                                href={handleShare(shareFile).twitter}
                                 target="_blank"
                                 rel="noreferrer"
                                 className="flex items-center gap-3 p-4 border rounded hover:shadow transition"
                             >
                                 <FaTelegramPlane className="text-blue-500 text-2xl" />
-                                <span className="font-semibold ">Telegram</span>
-                            </a>
-                            <a
-                                href={handleShare(shareFile).telegram}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="flex items-center gap-3 p-4 border rounded hover:shadow transition"
-                            >
-                                <FaTelegramPlane className="text-blue-500 text-2xl" />
-                                <span className="font-semibold ">Telegram</span>
+                                <span className="font-semibold">Twitter</span>
                             </a>
 
                             <a
@@ -748,38 +513,8 @@ const FileShow = () => {
                                 <FaEnvelope className="text-red-500 text-2xl" />
                                 <span className="font-semibold">Email</span>
                             </a>
-
-                            <a
-                                href={handleShare(shareFile).email}
-                                className="flex items-center gap-3 p-4 border rounded hover:shadow transition"
-                            >
-                                <FaEnvelope className="text-red-500 text-2xl" />
-                                <span className="font-semibold">Email</span>
-                            </a>
-
-
-
                         </div>
 
-                        </div>
-
-                        <div className="mt-6 text-center">
-                            <p className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                                QR Code:
-                            </p>
-                            <img
-                                src={handleShare(shareFile).qr}
-                                alt="QR Code"
-                                className="mx-auto border rounded w-32 h-32"
-                            />
-                            <div className="flex flex-col items-center mt-4">
-                                <button
-                                    onClick={() => downloadQRCode(shareFile)}
-                                    className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-500 rounded hover:bg-blue-200 transition"
-                                >
-                                    <FaDownload className="text-blue-500 text-2xl" />
-                                    <span className="font-semibold">Download QR Code</span>
-                                </button>
                         <div className="mt-6 text-center">
                             <p className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                                 QR Code:
@@ -808,39 +543,9 @@ const FileShow = () => {
                                     <FaDownload className="text-blue-500 text-2xl" />
                                     <span className="font-semibold">Copy Link</span>
                                 </button>
-                                <button
-                                    onClick={() => {
-                                        navigator.clipboard.writeText(handleShare(shareFile).copy);
-                                        toast.success("Link copied to clipboard!");
-                                    }}
-                                    className="mt-2 inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-500 rounded hover:bg-blue-200 transition"
-                                >
-                                    <FaDownload className="text-blue-500 text-2xl" />
-                                    <span className="font-semibold">Copy Link</span>
-                                </button>
-
                             </div>
-
                         </div>
 
-                            </div>
-
-                        </div>
-
-
-                        <div className="mt-6 text-center">
-                            <button
-                                onClick={() => setShareFile(null)}
-                                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-900"
-                            >
-                                Close
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-        </div>
-    );
                         <div className="mt-6 text-center">
                             <button
                                 onClick={() => setShareFile(null)}

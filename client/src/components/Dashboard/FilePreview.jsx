@@ -27,61 +27,101 @@ const FilePreview = ({ file }) => {
     const renderPreview = () => {
         if (file.type.startsWith("image/")) {
             return (
-                <img 
-                    src={file.path} 
-                    alt={file.name} 
-                    className="w-full h-auto rounded mb-4 max-h-[70vh] object-contain"
-                    onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextSibling.style.display = 'block';
-                    }}
-                />
+                <>
+                    <img 
+                        src={file.path} 
+                        alt={file.name} 
+                        className="w-full h-auto rounded mb-4 max-h-[70vh] object-contain"
+                        onError={(e) => {
+                            e.target.style.display = 'none';
+                            const fallback = e.target.nextElementSibling;
+                            if (fallback) {
+                                fallback.style.display = 'block';
+                            }
+                        }}
+                    />
+                    <div style={{ display: 'none' }} className="text-center p-8">
+                        <div className="text-6xl mb-4">🖼️</div>
+                        <h3 className="text-xl font-semibold mb-2">Image Preview Unavailable</h3>
+                        <p className="text-gray-600 mb-4">Unable to load image preview</p>
+                    </div>
+                </>
             );
         }
         
         if (file.type.startsWith("video/")) {
             return (
-                <video 
-                    controls 
-                    className="w-full h-auto rounded mb-4 max-h-[70vh]"
-                    onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextSibling.style.display = 'block';
-                    }}
-                >
-                    <source src={file.path} type={file.type} />
-                    Your browser does not support the video tag.
-                </video>
+                <>
+                    <video 
+                        controls 
+                        className="w-full h-auto rounded mb-4 max-h-[70vh]"
+                        onError={(e) => {
+                            e.target.style.display = 'none';
+                            const fallback = e.target.nextElementSibling;
+                            if (fallback) {
+                                fallback.style.display = 'block';
+                            }
+                        }}
+                    >
+                        <source src={file.path} type={file.type} />
+                        Your browser does not support the video tag.
+                    </video>
+                    <div style={{ display: 'none' }} className="text-center p-8">
+                        <div className="text-6xl mb-4">🎬</div>
+                        <h3 className="text-xl font-semibold mb-2">Video Preview Unavailable</h3>
+                        <p className="text-gray-600 mb-4">Unable to load video preview</p>
+                    </div>
+                </>
             );
         }
         
         if (file.type.startsWith("audio/")) {
             return (
-                <audio 
-                    controls 
-                    className="w-full h-auto rounded mb-4"
-                    onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextSibling.style.display = 'block';
-                    }}
-                >
-                    <source src={file.path} type={file.type} />
-                    Your browser does not support the audio element.
-                </audio>
+                <>
+                    <audio 
+                        controls 
+                        className="w-full h-auto rounded mb-4"
+                        onError={(e) => {
+                            e.target.style.display = 'none';
+                            const fallback = e.target.nextElementSibling;
+                            if (fallback) {
+                                fallback.style.display = 'block';
+                            }
+                        }}
+                    >
+                        <source src={file.path} type={file.type} />
+                        Your browser does not support the audio element.
+                    </audio>
+                    <div style={{ display: 'none' }} className="text-center p-8">
+                        <div className="text-6xl mb-4">🎵</div>
+                        <h3 className="text-xl font-semibold mb-2">Audio Preview Unavailable</h3>
+                        <p className="text-gray-600 mb-4">Unable to load audio preview</p>
+                    </div>
+                </>
             );
         }
         
         if (file.type === "application/pdf") {
             return (
-                <iframe 
-                    src={file.path} 
-                    title="PDF Preview" 
-                    className="w-full h-[70vh] rounded mb-4 border"
-                    onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextSibling.style.display = 'block';
-                    }}
-                />
+                <>
+                    <iframe 
+                        src={file.path} 
+                        title="PDF Preview" 
+                        className="w-full h-[70vh] rounded mb-4 border"
+                        onError={(e) => {
+                            e.target.style.display = 'none';
+                            const fallback = e.target.nextElementSibling;
+                            if (fallback) {
+                                fallback.style.display = 'block';
+                            }
+                        }}
+                    />
+                    <div style={{ display: 'none' }} className="text-center p-8">
+                        <div className="text-6xl mb-4">📄</div>
+                        <h3 className="text-xl font-semibold mb-2">PDF Preview Unavailable</h3>
+                        <p className="text-gray-600 mb-4">Unable to load PDF preview</p>
+                    </div>
+                </>
             );
         }
         
