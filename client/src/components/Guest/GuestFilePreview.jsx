@@ -99,14 +99,7 @@ const GuestFilePreview = ({ guestFiles }) => {
 
         return nameMatch && typeMatch && statusMatch;
     });
-        return nameMatch && typeMatch && statusMatch;
-    });
 
-    const totalPages = Math.ceil((filteredFiles?.length || 0) / itemsPerPage);
-    const paginatedFiles = filteredFiles?.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-    );
     const totalPages = Math.ceil((filteredFiles?.length || 0) / itemsPerPage);
     const paginatedFiles = filteredFiles?.slice(
         (currentPage - 1) * itemsPerPage,
@@ -120,17 +113,6 @@ const GuestFilePreview = ({ guestFiles }) => {
             const response = await fetch(qrUrl);
             const blob = await response.blob();
             const blobUrl = URL.createObjectURL(blob);
-        try {
-            const response = await fetch(qrUrl);
-            const blob = await response.blob();
-            const blobUrl = URL.createObjectURL(blob);
-
-            const link = document.createElement("a");
-            link.href = blobUrl;
-            link.download = "qr-code.png";
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
             const link = document.createElement("a");
             link.href = blobUrl;
             link.download = "qr-code.png";
@@ -138,13 +120,6 @@ const GuestFilePreview = ({ guestFiles }) => {
             link.click();
             document.body.removeChild(link);
 
-            // Clean up the blob URL
-            URL.revokeObjectURL(blobUrl);
-        } catch (error) {
-            console.error("QR code download failed:", error);
-            alert("Failed to download QR code. Please try again.");
-        }
-    };
             // Clean up the blob URL
             URL.revokeObjectURL(blobUrl);
         } catch (error) {
