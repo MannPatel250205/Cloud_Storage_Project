@@ -6,7 +6,6 @@ import {
     updateFileStatus,
     generateShareShortenLink,
     sendLinkEmail,
-    updateFileExpiry,
     updateFilePassword,
     searchFiles,
     showUserFiles,
@@ -80,6 +79,7 @@ const fileSlice = createSlice({
             .addCase(deleteFile.fulfilled, (state, action) => {
                 state.loading = false;
                 state.files = state.files.filter((f) => f._id !== action.payload);
+                state.userFiles = state.userFiles.filter((f) => f._id !== action.payload);
             })
             .addCase(deleteFile.rejected, (state, action) => {
                 state.loading = false;
@@ -125,18 +125,6 @@ const fileSlice = createSlice({
                 state.error = action.payload;
             })
 
-            .addCase(updateFileExpiry.pending, (state) => {
-                state.loading = true;
-                state.error = null;
-            })
-            .addCase(updateFileExpiry.fulfilled, (state, action) => {
-                state.loading = false;
-                state.selectedFile = action.payload;
-            })
-            .addCase(updateFileExpiry.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
-            })
             .addCase(updateFilePassword.pending, (state) => {
                 state.loading = true;
                 state.error = null;
